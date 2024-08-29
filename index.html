@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Game</title>
+    <style>
+        /* Основной стиль для страницы */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Стиль для экрана телефона */
+        .phone-screen {
+            width: 300px;
+            height: 600px;
+            background-color: #fff;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden; /* Чтобы фон не выходил за границы */
+        }
+
+        /* Фоновое изображение экрана телефона */
+        .phone-screen::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('your-background-image-url.jpg') no-repeat center center;
+            background-size: cover;
+            z-index: -1;
+            opacity: 0.2; /* Полупрозрачный фон */
+        }
+
+        /* Стиль для кружочков */
+        .circle {
+            width: 80px;
+            height: 80px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Тень для текста */
+            position: absolute;  /* Абсолютное позиционирование */
+        }
+
+        /* Эффект наведения на кружочек */
+        .circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Изменение размера кружочка при клике */
+        .circle.clicked {
+            transform: scale(1.25);
+        }
+
+        /* Цвет кружочка, если угадал */
+        .correct {
+            background-color: #4caf50; /* Зеленый */
+        }
+
+        /* Цвет кружочка, если не угадал */
+        .incorrect {
+            background-color: #f44336; /* Красный */
+        }
+
+        /* Цвет оставшихся кружочков */
+        .reveal {
+            background-color: #2196f3; /* Синий */
+        }
+
+        /* Счетчик очков */
+        .score {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Тень для текста */
+        }
+
+        /* Таймер обратного отсчета */
+        .timer {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Тень для текста */
+            background: rgba(255, 255, 255, 0.8); /* Легкий фон для таймера */
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        /* Позиции для кружочков */
+        .circle:nth-child(2) { /* Первый кружочек */
+            top: 160px;
+            left: calc(50% - 100px);
+        }
+
+        .circle:nth-child(3) { /* Второй кружочек */
+            top: 160px;
+            left: calc(50% + 20px);
+        }
+
+        .circle:nth-child(4) { /* Третий кружочек */
+            top: 275px;
+            left: calc(50% - 100px);
+        }
+
+        .circle:nth-child(5) { /* Четвертый кружочек */
+            top: 275px;
+            left: calc(50% + 20px);
+        }
+
+        .circle:nth-child(6) { /* Пятый кружочек */
+            top: 390px;
+            left: calc(50% - 100px);
+        }
+
+        .circle:nth-child(7) { /* Шестой кружочек */
+            top: 390px;
+            left: calc(50% + 20px);
+        }
+
+        /* Неактивное состояние игры */
+        .inactive .circle {
+            pointer-events: none; /* Отключаем клики */
+            cursor: default; /* Убираем указатель */
+            filter: grayscale(100%); /* Делаем кружочки черно-белыми */
+            transition: none; /* Убираем анимации */
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-screen" id="gameScreen">
+    <!-- Таймер обратного отсчета -->
+    <div class="timer" id="timer">30</div>
+    <!-- Шесть кружочков -->
+    <div class="circle" onclick="revealPrize(this, 0)"></div>
+    <div class="circle" onclick="revealPrize(this, 1)"></div>
+    <div class="circle" onclick="revealPrize(this, 2)"></div>
+    <div class="circle" onclick="revealPrize(this, 3)"></div>
+    <div class="circle" onclick="revealPrize(this, 4)"></div>
+    <div class="circle" onclick="revealPrize(this, 5)"></div>
+    <!-- Счетчик очков -->
+    <div class="score" id="score">Score: 0</div>
+</div>
+
+<script>
+    // Инициализация призов, счетчиков и таймера
+    let prizes = ["2", "1", "0", "0", "0", "0"];  // Значения для кружочков
+    let attempts = 0;  // Количество попыток пользователя
+    const maxAttempts = 2;  // Максимум попыток на одну игру
+    let gameCount = 0;  // Количество сыгранных игр
+    const maxGames = 3;  // Максимум игр до начала таймера
+    let score = 0;  // Общий счет пользователя
+    let timerInterval;  // Переменная для хранения интервала таймера
+    const initialTime = 30;  // Начальное значение таймера (можно изменить)
+
+    // Функция для перемешивания призов
+    function shufflePrizes() {
+        prizes.sort(() => Math.random() - 0.5);
+    }
+
+    // Функция для сброса игры
+    function resetGame() {
+        attempts = 0;  // Сбросить количество попыток
+        shufflePrizes();  // Перемешать призы
+        const circles = document.querySelectorAll('.circle');
+        circles.forEach(circle => {
+            circle.className = 'circle';  // Сброс классов для кружочков
+            circle.textContent = '';  // Очистка текста
+            circle.style.transform = "scale(1)";  // Возвращение кружочка к исходному размеру
+        });
+        document.getElementById('score').textContent = `Score: ${score}`;  // Обновить счет
+        document.getElementById('gameScreen').classList.remove('inactive'); // Снимаем неактивное состояние
+    }
+
+    // Функция для обработки нажатия на кружочек
+    function revealPrize(element, index) {
+        if (attempts < maxAttempts && !element.classList.contains('clicked')) {
+            attempts++;  // Увеличить количество попыток
+            element.classList.add('clicked');
+            element.textContent = prizes[index];  // Показать приз в кружочке
+            element.style.transform = "scale(1.25)";  // Увеличить кружочек
+
+            // Если приз равен "0", сделать кружочек красным
+            if (prizes[index] === "0") {
+                element.classList.add('incorrect');
+            } else {
+                // Если приз больше нуля, сделать кружочек зеленым и увеличить счет
+                element.classList.add('correct');
+                score += parseInt(prizes[index]);
+                document.getElementById('score').textContent = `Score: ${score}`;  // Обновить счет
+            }
+
+            // Если достигнуто максимальное количество попыток
+            if (attempts === maxAttempts) {
+                setTimeout(revealAllPrizes, 2000);  // Показать все оставшиеся кружочки через 2 секунды
+                gameCount++;  // Увеличить счетчик игр
+
+                // Если сыграно менее максимального количества игр
+                if (gameCount < maxGames) {
+                    setTimeout(resetGame, 3000);  // Перезапуск игры через 3 секунды
+                } else {
+                    // Если достигнуто максимальное количество игр
+                    setTimeout(() => {
+                        resetGame();  // Сначала сброс игры
+                        startTimer();  // Затем запуск таймера
+                    }, 3000);  // Запуск таймера через 3 секунды
+                }
+            }
+        }
+    }
+
+    // Функция для показа всех оставшихся кружочков
+    function revealAllPrizes() {
+        const circles = document.querySelectorAll('.circle');
+        circles.forEach((circle, i) => {
+            if (!circle.classList.contains('clicked')) {
+                circle.classList.add('reveal');
+                circle.textContent = prizes[i];  // Показать приз
+            }
+        });
+    }
+
+    // Функция для запуска таймера
+    function startTimer() {
+        let timeLeft = initialTime;  // Начальное значение таймера
+        document.getElementById('timer').textContent = timeLeft;
+        document.getElementById('gameScreen').classList.add('inactive'); // Делаем игру неактивной
+        timerInterval = setInterval(() => {
+            timeLeft--;  // Уменьшение времени
+            document.getElementById('timer').textContent = timeLeft;
+
+            // Если время вышло
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);  // Остановка таймера
+                resetGame();  // Сброс игры
+                gameCount = 0;  // Сбросить количество игр
+            }
+        }, 1000);  // Таймер обновляется каждую секунду
+    }
+
+    // Перемешивание призов при загрузке страницы
+    shufflePrizes();
+</script>
+
+</body>
+</html>
