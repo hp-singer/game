@@ -1,28 +1,25 @@
-/* Фон для всей страницы */
 body {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(to right, #ff7e5f, #feb47b); /* Градиентный фон */
-    background-image: url('images/texture.png'); /* Текстура поверх градиента */
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    background-image: url('images/texture.png');
     background-size: cover;
     margin: 0;
     font-family: Arial, sans-serif;
 }
 
-/* Экран телефона */
 .phone-screen {
     width: 300px;
     height: 600px;
-    background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный белый фон */
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 30px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
 }
 
-/* Фоновое изображение экрана телефона */
 .phone-screen::before {
     content: "";
     position: absolute;
@@ -36,7 +33,6 @@ body {
     opacity: 0.3;
 }
 
-/* Стиль для кружочков */
 .circle {
     width: 80px;
     height: 80px;
@@ -53,33 +49,27 @@ body {
     position: absolute;
 }
 
-/* Эффект наведения на кружочек */
 .circle:hover {
     transform: scale(1.1);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Изменение размера кружочка при клике */
 .circle.clicked {
     transform: scale(1.25);
 }
 
-/* Цвет кружочка, если угадал */
 .correct {
-    background-color: #4caf50; /* Зеленый */
+    background-color: #4caf50;
 }
 
-/* Цвет кружочка, если не угадал */
 .incorrect {
-    background-color: #f44336; /* Красный */
+    background-color: #f44336;
 }
 
-/* Цвет оставшихся кружочков */
 .reveal {
-    background-color: #2196f3; /* Синий */
+    background-color: #2196f3;
 }
 
-/* Счетчик очков */
 .score {
     position: absolute;
     bottom: 80px;
@@ -91,7 +81,6 @@ body {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-/* Таймер обратного отсчета */
 .timer {
     position: absolute;
     top: 10px;
@@ -106,40 +95,38 @@ body {
     border-radius: 10px;
 }
 
-/* Позиции для кружочков */
-.circle:nth-child(2) { /* Первый кружочек */
+.circle:nth-child(2) { /* First circle */
     top: 160px;
     left: calc(50% - 100px);
 }
 
-.circle:nth-child(3) { /* Второй кружочек */
+.circle:nth-child(3) { /* Second circle */
     top: 160px;
     left: calc(50% + 20px);
 }
 
-.circle:nth-child(4) { /* Третий кружочек */
+.circle:nth-child(4) { /* Third circle */
     top: 275px;
     left: calc(50% - 100px);
 }
 
-.circle:nth-child(5) { /* Четвертый кружочек */
+.circle:nth-child(5) { /* Fourth circle */
     top: 275px;
     left: calc(50% + 20px);
 }
 
-.circle:nth-child(6) { /* Пятый кружочек */
+.circle:nth-child(6) { /* Fifth circle */
     top: 390px;
     left: calc(50% - 100px);
 }
 
-.circle:nth-child(7) { /* Шестой кружочек */
+.circle:nth-child(7) { /* Sixth circle */
     top: 390px;
     left: calc(50% + 20px);
 }
 
-/* Неактивное состояние игры */
 .inactive .circle {
-    pointer-events: none; /* Отключаем клики */
+    pointer-events: none;
     cursor: default;
     filter: grayscale(100%);
     transition: none;
